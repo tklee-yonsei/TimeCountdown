@@ -32,6 +32,12 @@ const fsMinutesDisplay = document.getElementById('fs-minutes');
 const fsSecondsDisplay = document.getElementById('fs-seconds');
 const dragHandle = document.getElementById('drag-handle');
 
+// 메모 관련 요소
+const memoText = document.getElementById('memo-text');
+const saveMemoBtn = document.getElementById('save-memo-btn');
+const clearMemoBtn = document.getElementById('clear-memo-btn');
+const fsMemoText = document.getElementById('fs-memo-text');
+
 // 변수
 let totalSeconds = 0;
 let countdownInterval;
@@ -39,6 +45,7 @@ let isRunning = false;
 let isFullscreen = false;
 let lastTranslateY = 0; // 마지막으로 설정된 Y 위치 저장 변수
 let lastUpdateTime = Date.now(); // 마지막 업데이트 시간 저장
+let memoContent = ''; // 메모 내용
 
 // 타이머 초기화 함수
 function initializeTimer() {
@@ -66,10 +73,39 @@ function saveTimerState() {
         // 시간 설정 값도 저장
         inputHours: inputHours.value || 0,
         inputMinutes: inputMinutes.value || 0, 
-        inputSeconds: inputSeconds.value || 0
+        inputSeconds: inputSeconds.value || 0,
+        // 메모 내용 저장
+        memoContent: memoText.value
     };
     
     localStorage.setItem('timerState', JSON.stringify(timerState));
+}
+
+// 메모 저장 함수
+function saveMemo() {
+    memoContent = memoText.value;
+    fsMemoText.value = memoContent; // 풀스크린 메모도 동기화
+    saveTimerState(); // 타이머 상태와 함께 저장
+}
+
+// 메모 초기화 함수
+function clearMemo() {
+    memoContent = '';
+    memoText.value = '';
+    fsMemoText.value = '';
+    saveTimerState();
+}
+
+// 메모 동기화 함수 (일반 모드 <-> 풀스크린 모드)
+function syncMemos() {
+    fsMemoText.value = memoText.value;
+}
+
+// 메모 영역 자동 높이 조절 함수
+function autoResizeTextarea(textarea) {
+    // 스크롤 높이로 영역 크기 조절
+    textarea.style.height = 'auto'; // 먼저 높이를 초기화
+    textarea.style.height = textarea.scrollHeight + 'px'; // 내용에 맞게 높이 설정
 }
 
 // 타이머 상태 복원 함수
@@ -100,6 +136,18 @@ function restoreTimerState() {
         }
         if (state.inputSeconds !== undefined) {
             inputSeconds.value = state.inputSeconds;
+        }
+        
+        // 메모 내용 복원
+        if (state.memoContent !== undefined) {
+            memoContent = state.memoContent;
+            memoText.value = memoContent;
+            fsMemoText.value = memoContent;
+            
+            // 메모 영역 크기 조절
+            setTimeout(() => {
+                autoResizeTextarea(fsMemoText);
+            }, 100);
         }
         
         // 타이머 상태 복원
@@ -355,6 +403,14 @@ function enterFullscreen() {
     fsMinutesDisplay.textContent = minutesDisplay.textContent;
     fsSecondsDisplay.textContent = secondsDisplay.textContent;
     
+    // 메모 동기화
+    syncMemos();
+    
+    // 메모 영역 크기 자동 조절
+    setTimeout(() => {
+        autoResizeTextarea(fsMemoText);
+    }, 100);
+    
     // 재생/일시정지 버튼 상태 동기화
     if (isRunning) {
         fsPlayPauseIcon.className = 'fa-solid fa-pause';
@@ -489,6 +545,27 @@ fsPlayPauseBtn.addEventListener('click', togglePlayPause);
 dragHandle.addEventListener('mousedown', handleDragStart);
 dragHandle.addEventListener('touchstart', handleDragStart);
 
+// 메모 관련 이벤트 리스너
+saveMemoBtn.addEventListener('click', saveMemo);
+clearMemoBtn.addEventListener('click', clearMemo);
+
+// 메모 실시간 동기화 (일반 모드에서 풀스크린 모드로)
+memoText.addEventListener('input', function() {
+    fsMemoText.value = memoText.value;
+    autoResizeTextarea(fsMemoText); // 풀스크린 메모 영역 크기 조절
+});
+
+// 메모 실시간 동기화 (풀스크린 모드에서 일반 모드로)
+fsMemoText.addEventListener('input', function() {
+    memoText.value = fsMemoText.value;
+    autoResizeTextarea(fsMemoText); // 내용 변경 시 크기 조절
+    // 입력 중에는 자동 저장하지 않고, 포커스를 잃을 때 저장
+});
+
+// 메모 자동 저장 (포커스 잃을 때)
+memoText.addEventListener('blur', saveMemo);
+fsMemoText.addEventListener('blur', saveMemo);
+
 // ESC 키를 누르면 풀스크린 모드 종료
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && isFullscreen) {
@@ -521,4 +598,10 @@ initializeTimer();
 window.addEventListener('DOMContentLoaded', restoreTimerState);
 
 // 창이 닫히기 전에 상태 저장
-window.addEventListener('beforeunload', saveTimerState); 
+window.addEventListener('beforeunload', saveTimerState);
+
+// 페이지 로드 완료 후 추가 작업
+window.addEventListener('load', function() {
+    // 메모 영역 초기 높이 조절
+    autoResizeTextarea(fsMemoText);
+}); 

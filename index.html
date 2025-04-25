@@ -50,6 +50,16 @@
             </div>
         </div>
         
+        <!-- 메모 영역 추가 -->
+        <div class="memo-container">
+            <h3>메모</h3>
+            <textarea id="memo-text" placeholder="여기에 메모를 작성하세요..." rows="4"></textarea>
+            <div class="memo-buttons">
+                <button id="save-memo-btn">저장</button>
+                <button id="clear-memo-btn">지우기</button>
+            </div>
+        </div>
+        
         <div class="settings">
             <div class="title-change">
                 <label for="custom-title">타이머 제목:</label>
@@ -103,6 +113,11 @@
                 <button id="fs-exit-btn" class="icon-btn">
                     <i class="fa-solid fa-compress"></i>
                 </button>
+            </div>
+            
+            <!-- 풀스크린 메모 영역 추가 -->
+            <div class="fs-memo-container">
+                <textarea id="fs-memo-text" placeholder="여기에 메모를 작성하세요..." rows="5"></textarea>
             </div>
         </div>
     </div>

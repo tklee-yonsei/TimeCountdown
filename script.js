@@ -37,6 +37,7 @@ let totalSeconds = 0;
 let countdownInterval;
 let isRunning = false;
 let isFullscreen = false;
+let lastTranslateY = 0; // 마지막으로 설정된 Y 위치 저장 변수
 
 // 타이머 초기화 함수
 function initializeTimer() {
@@ -230,6 +231,11 @@ function enterFullscreen() {
         fsPlayPauseIcon.className = 'fa-solid fa-play';
     }
     
+    // 마지막 저장된 위치 복원
+    setTimeout(() => {
+        fullscreenContent.style.transform = `translateY(${lastTranslateY}px)`;
+    }, 100);
+    
     // 실제 브라우저 풀스크린 API 사용 (선택적)
     if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
@@ -314,6 +320,16 @@ function handleDragMove(e) {
 function handleDragEnd() {
     isDragging = false;
     
+    // 마지막 위치 저장
+    const transformStyle = window.getComputedStyle(fullscreenContent).transform;
+    if (transformStyle && transformStyle !== 'none') {
+        const matrix = transformStyle.match(/^matrix\((.+)\)$/);
+        if (matrix) {
+            const values = matrix[1].split(', ');
+            lastTranslateY = parseFloat(values[5]) || 0;
+        }
+    }
+    
     // 이벤트 리스너 제거
     document.removeEventListener('mousemove', handleDragMove);
     document.removeEventListener('touchmove', handleDragMove);
@@ -359,16 +375,6 @@ function handleFullscreenChange() {
         }
     }
 }
-
-// 풀스크린 모드 종료 시 위치 초기화
-function resetFullscreenPosition() {
-    fullscreenContent.style.transform = 'translateY(0)';
-}
-
-// 풀스크린 모드 종료 시 위치 초기화 이벤트 추가
-fullscreenBtn.addEventListener('click', () => {
-    setTimeout(resetFullscreenPosition, 100);
-});
 
 // 초기화
 initializeTimer(); 

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카운트다운 타이머</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light">
+    <div class="container">
+        <h1 id="timer-title">카운트다운 타이머</h1>
+        
+        <div class="timer-display">
+            <div class="time-section">
+                <span id="hours">00</span>
+                <span class="label">시</span>
+            </div>
+            <div class="time-section">
+                <span id="minutes">00</span>
+                <span class="label">분</span>
+            </div>
+            <div class="time-section">
+                <span id="seconds">00</span>
+                <span class="label">초</span>
+            </div>
+        </div>
+        
+        <div class="timer-controls">
+            <div class="time-inputs">
+                <div class="input-group">
+                    <label for="input-hours">시</label>
+                    <input type="number" id="input-hours" min="0" max="99" value="0">
+                </div>
+                <div class="input-group">
+                    <label for="input-minutes">분</label>
+                    <input type="number" id="input-minutes" min="0" max="59" value="0">
+                </div>
+                <div class="input-group">
+                    <label for="input-seconds">초</label>
+                    <input type="number" id="input-seconds" min="0" max="59" value="0">
+                </div>
+            </div>
+            
+            <div class="buttons">
+                <button id="start-btn">시작</button>
+                <button id="pause-btn" disabled>일시정지</button>
+                <button id="reset-btn">초기화</button>
+            </div>
+        </div>
+        
+        <div class="settings">
+            <div class="title-change">
+                <label for="custom-title">타이머 제목:</label>
+                <input type="text" id="custom-title" placeholder="타이머 제목 입력">
+                <button id="update-title-btn">변경</button>
+            </div>
+            
+            <div class="theme-toggle">
+                <span>테마: </span>
+                <button id="theme-toggle-btn">다크 모드</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html> 

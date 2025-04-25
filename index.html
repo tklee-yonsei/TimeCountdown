@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>카운트다운 타이머</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Font Awesome 아이콘 추가 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="theme-light">
-    <div class="container">
+    <div class="container" id="main-container">
         <h1 id="timer-title">카운트다운 타이머</h1>
         
         <div class="timer-display">
@@ -48,6 +50,16 @@
             </div>
         </div>
         
+        <!-- 메모 영역 추가 -->
+        <div class="memo-container">
+            <h3>메모</h3>
+            <textarea id="memo-text" placeholder="여기에 메모를 작성하세요..." rows="4"></textarea>
+            <div class="memo-buttons">
+                <button id="save-memo-btn">저장</button>
+                <button id="clear-memo-btn">지우기</button>
+            </div>
+        </div>
+        
         <div class="settings">
             <div class="title-change">
                 <label for="custom-title">타이머 제목:</label>
@@ -58,6 +70,54 @@
             <div class="theme-toggle">
                 <span>테마: </span>
                 <button id="theme-toggle-btn">다크 모드</button>
+            </div>
+            
+            <div class="fullscreen-toggle">
+                <button id="fullscreen-btn">풀스크린 모드</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 풀스크린 모드용 컨테이너 -->
+    <div class="fullscreen-container" id="fullscreen-container">
+        <div class="fullscreen-content">
+            <!-- 드래그 핸들 추가 -->
+            <div class="drag-handle" id="drag-handle">
+                <div class="drag-handle-dots"></div>
+                <div class="drag-handle-dots"></div>
+                <div class="drag-handle-dots"></div>
+                <div class="drag-handle-dots"></div>
+                <div class="drag-handle-dots"></div>
+            </div>
+            
+            <h1 id="fullscreen-title">카운트다운 타이머</h1>
+            
+            <div class="fullscreen-timer">
+                <div class="fs-time-section">
+                    <span id="fs-hours">00</span>
+                </div>
+                <div class="fs-colon">:</div>
+                <div class="fs-time-section">
+                    <span id="fs-minutes">00</span>
+                </div>
+                <div class="fs-colon">:</div>
+                <div class="fs-time-section">
+                    <span id="fs-seconds">00</span>
+                </div>
+            </div>
+            
+            <div class="fullscreen-controls">
+                <button id="fs-play-pause-btn" class="icon-btn">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button id="fs-exit-btn" class="icon-btn">
+                    <i class="fa-solid fa-compress"></i>
+                </button>
+            </div>
+            
+            <!-- 풀스크린 메모 영역 추가 -->
+            <div class="fs-memo-container">
+                <textarea id="fs-memo-text" placeholder="여기에 메모를 작성하세요..." rows="5"></textarea>
             </div>
         </div>
     </div>

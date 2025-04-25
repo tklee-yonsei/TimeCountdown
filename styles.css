@@ -199,10 +199,170 @@ button:disabled {
     border-color: #555;
 }
 
-.theme-toggle {
+.theme-toggle, .fullscreen-toggle {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* 풀스크린 모드 스타일 */
+.fullscreen-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: inherit;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.theme-light .fullscreen-container {
+    background-color: #f8f9fa;
+}
+
+.theme-dark .fullscreen-container {
+    background-color: #121212;
+}
+
+.fullscreen-content {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
+}
+
+.fullscreen-timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1.5rem 0;
+    gap: 0.5rem;
+}
+
+.fs-time-section {
+    text-align: center;
+}
+
+.fs-time-section span {
+    display: block;
+    font-size: 14rem;
+    font-weight: bold;
+}
+
+.fs-colon {
+    font-size: 14rem;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: 2rem;
+    opacity: 0.5;
+}
+
+.theme-light .fs-colon {
+    color: #e5e5e5;
+}
+
+.theme-dark .fs-colon {
+    color: #6c757d;
+}
+
+#fullscreen-title {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.fullscreen-controls {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 2rem;
+}
+
+/* 새로운 버튼 스타일 - 배경 없음, 아이콘만 */
+.icon-btn {
+    background: none !important;
+    border: none;
+    box-shadow: none;
+    width: 4rem;
+    height: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    padding: 0;
+    opacity: 0.5;
+    transition: opacity 0.3s;
+    cursor: pointer;
+}
+
+.icon-btn:hover {
+    opacity: 0.9;
+    background: none !important;
+}
+
+.theme-light .icon-btn {
+    color: #cccccc;
+    background-color: transparent !important;
+}
+
+.theme-dark .icon-btn {
+    color: #555555;
+    background-color: transparent !important;
+}
+
+/* 일반 버튼과 충돌하지 않도록 풀스크린 버튼 스타일 오버라이드 */
+.fullscreen-controls button {
+    background: none !important;
+}
+
+/* 드래그 핸들 스타일 */
+.drag-handle {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 80px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: move;
+    opacity: 0.1;
+    transition: opacity 0.3s;
+}
+
+.drag-handle:hover {
+    opacity: 0.7;
+}
+
+.theme-light .drag-handle {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-dark .drag-handle {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.drag-handle-dots {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+/* 풀스크린 모드 활성화 시 */
+.fullscreen-active .fullscreen-container {
+    display: flex;
 }
 
 @media (max-width: 600px) {
@@ -243,5 +403,185 @@ button:disabled {
     .title-change button {
         width: 100%;
         margin: 0.5rem 0;
+    }
+    
+    .fullscreen-timer {
+        flex-direction: row;
+        gap: 0.2rem;
+    }
+    
+    .fs-time-section span {
+        font-size: 5rem;
+    }
+    
+    .fs-colon {
+        font-size: 5rem;
+    }
+    
+    .icon-btn {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.2rem;
+    }
+    
+    .drag-handle {
+        left: 10px;
+        width: 30px;
+        height: 60px;
+    }
+}
+
+/* 메모 컨테이너 스타일 */
+.memo-container {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid;
+    transition: border-color 0.3s;
+}
+
+.theme-light .memo-container {
+    border-color: #dee2e6;
+}
+
+.theme-dark .memo-container {
+    border-color: #444;
+}
+
+.memo-container h3 {
+    margin-bottom: 0.8rem;
+    font-size: 1.2rem;
+}
+
+#memo-text {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    resize: vertical;
+    transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+    margin-bottom: 0.8rem;
+    font-family: inherit;
+}
+
+.theme-light #memo-text {
+    background-color: #fff;
+    color: #343a40;
+}
+
+.theme-dark #memo-text {
+    background-color: #333;
+    color: #e9ecef;
+    border-color: #555;
+}
+
+.memo-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.memo-buttons button {
+    flex: 1;
+}
+
+/* 풀스크린 모드 메모 스타일 */
+.fs-memo-container {
+    margin-top: 3rem;
+    width: 90%;
+    max-width: 900px;
+    position: relative;
+}
+
+.memo-toggle {
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.fs-memo-content {
+    display: none;
+    transition: opacity 0.3s;
+    opacity: 0;
+}
+
+.fs-memo-content.visible {
+    display: block;
+    opacity: 1;
+}
+
+#fs-memo-text {
+    width: 100%;
+    padding: 1.5rem;
+    border-radius: 8px;
+    resize: none;
+    min-height: 150px;
+    height: auto;
+    max-height: none;
+    font-family: inherit;
+    font-size: 1.5rem;
+    line-height: 1.6;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: inherit;
+    transition: border-color 0.3s;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.theme-light #fs-memo-text {
+    color: #444;
+    background-color: transparent;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.theme-dark #fs-memo-text {
+    color: #eee;
+    background-color: transparent;
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+#fs-memo-text:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.theme-light #fs-memo-text:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(0, 0, 0, 0.2);
+}
+
+.theme-dark #fs-memo-text:focus {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+#fs-memo-text::placeholder {
+    opacity: 0.2;
+    transition: opacity 0.3s;
+}
+
+.theme-light #fs-memo-text::placeholder {
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.theme-dark #fs-memo-text::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+}
+
+#fs-memo-text:focus::placeholder {
+    opacity: 0.1;
+}
+
+/* 모바일 대응 */
+@media (max-width: 600px) {
+    .fs-memo-container {
+        width: 95%;
+        margin-top: 2rem;
+    }
+    
+    #fs-memo-text {
+        min-height: 120px;
+        font-size: 1.2rem;
+        padding: 1rem;
     }
 } 

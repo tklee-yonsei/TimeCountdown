@@ -38,6 +38,7 @@ let countdownInterval;
 let isRunning = false;
 let isFullscreen = false;
 let lastTranslateY = 0; // 마지막으로 설정된 Y 위치 저장 변수
+let lastUpdateTime = Date.now(); // 마지막 업데이트 시간 저장
 
 // 타이머 초기화 함수
 function initializeTimer() {
@@ -54,24 +55,94 @@ function formatTime(time) {
     return time.toString().padStart(2, '0');
 }
 
-// 카운트다운 업데이트 함수
-function updateCountdown() {
-    if (totalSeconds <= 0) {
-        clearInterval(countdownInterval);
-        isRunning = false;
-        startBtn.disabled = false;
-        pauseBtn.disabled = true;
+// 타이머 상태 저장 함수
+function saveTimerState() {
+    const timerState = {
+        totalSeconds: totalSeconds,
+        isRunning: isRunning,
+        title: timerTitle.textContent,
+        lastTranslateY: lastTranslateY,
+        lastUpdateTime: Date.now(),
+        // 시간 설정 값도 저장
+        inputHours: inputHours.value || 0,
+        inputMinutes: inputMinutes.value || 0, 
+        inputSeconds: inputSeconds.value || 0
+    };
+    
+    localStorage.setItem('timerState', JSON.stringify(timerState));
+}
+
+// 타이머 상태 복원 함수
+function restoreTimerState() {
+    const savedState = localStorage.getItem('timerState');
+    
+    if (savedState) {
+        const state = JSON.parse(savedState);
         
-        // 풀스크린 모드 재생/일시정지 버튼 업데이트
-        fsPlayPauseIcon.className = 'fa-solid fa-play';
+        // 제목 복원
+        if (state.title) {
+            timerTitle.textContent = state.title;
+            fullscreenTitle.textContent = state.title;
+            document.title = state.title;
+        }
         
-        // 타이머가 끝났을 때 알림 표시
-        alert('타이머가 종료되었습니다!');
-        return;
+        // Y 위치 복원
+        if (state.lastTranslateY !== undefined) {
+            lastTranslateY = state.lastTranslateY;
+        }
+        
+        // 시간 설정 값 복원
+        if (state.inputHours !== undefined) {
+            inputHours.value = state.inputHours;
+        }
+        if (state.inputMinutes !== undefined) {
+            inputMinutes.value = state.inputMinutes;
+        }
+        if (state.inputSeconds !== undefined) {
+            inputSeconds.value = state.inputSeconds;
+        }
+        
+        // 타이머 상태 복원
+        if (state.totalSeconds !== undefined) {
+            // 타이머 값 복원
+            totalSeconds = state.totalSeconds;
+            
+            // 타이머 디스플레이 업데이트
+            updateTimerDisplay();
+            
+            // 실행 상태 복원
+            if (state.isRunning) {
+                // 실행 중이었다면 경과 시간 계산하여 복원
+                const elapsedSeconds = Math.floor((Date.now() - state.lastUpdateTime) / 1000);
+                totalSeconds = Math.max(0, state.totalSeconds - elapsedSeconds);
+                
+                // 타이머가 아직 남아있으면 자동으로 재시작
+                if (totalSeconds > 0) {
+                    updateTimerDisplay();
+                    // 이미 초기화된 상태에서 시작
+                    isRunning = false; // 시작 전에 실행 상태 초기화
+                    startTimer(false); // 상태 초기화 없이 타이머 시작
+                } else {
+                    totalSeconds = 0;
+                    updateTimerDisplay();
+                    isRunning = false;
+                    startBtn.disabled = false;
+                    pauseBtn.disabled = true;
+                    fsPlayPauseIcon.className = 'fa-solid fa-play';
+                }
+            } else {
+                // 일시 중지 상태였다면 그대로 복원
+                isRunning = false;
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                fsPlayPauseIcon.className = 'fa-solid fa-play';
+            }
+        }
     }
-    
-    totalSeconds--;
-    
+}
+
+// 타이머 디스플레이 업데이트 함수 (카운트다운 로직과 분리)
+function updateTimerDisplay() {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
@@ -87,11 +158,40 @@ function updateCountdown() {
     fsSecondsDisplay.textContent = formatTime(seconds);
 }
 
-// 타이머 시작 함수
-function startTimer() {
+// 카운트다운 업데이트 함수
+function updateCountdown() {
+    if (totalSeconds <= 0) {
+        clearInterval(countdownInterval);
+        isRunning = false;
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        
+        // 풀스크린 모드 재생/일시정지 버튼 업데이트
+        fsPlayPauseIcon.className = 'fa-solid fa-play';
+        
+        // 타이머 상태 저장
+        saveTimerState();
+        
+        // 타이머가 끝났을 때 알림 표시
+        alert('타이머가 종료되었습니다!');
+        return;
+    }
+    
+    totalSeconds--;
+    updateTimerDisplay();
+    
+    // 주기적으로 타이머 상태 저장 (5초마다)
+    if (totalSeconds % 5 === 0) {
+        saveTimerState();
+    }
+}
+
+// 타이머 시작 함수 (초기화 여부를 확인하는 매개변수 추가)
+function startTimer(resetTimer = false) {
     if (isRunning) return;
     
-    if (!countdownInterval) {
+    // 새로운 시간으로 타이머 설정 (사용자가 명시적으로 새 시간 설정 시)
+    if (resetTimer) {
         // 시간 입력값 가져오기
         const hours = parseInt(inputHours.value) || 0;
         const minutes = parseInt(inputMinutes.value) || 0;
@@ -107,14 +207,29 @@ function startTimer() {
         }
         
         // 디스플레이 초기 설정
-        hoursDisplay.textContent = formatTime(hours);
-        minutesDisplay.textContent = formatTime(minutes);
-        secondsDisplay.textContent = formatTime(seconds);
-        
-        // 풀스크린 디스플레이 초기 설정
-        fsHoursDisplay.textContent = formatTime(hours);
-        fsMinutesDisplay.textContent = formatTime(minutes);
-        fsSecondsDisplay.textContent = formatTime(seconds);
+        updateTimerDisplay();
+    } 
+    // 이전 타이머 계속 (totalSeconds가 이미 설정되어 있음)
+    else {
+        // 남은 시간이 없는 경우 유효성 검사
+        if (totalSeconds <= 0) {
+            // 시간 입력값 가져오기
+            const hours = parseInt(inputHours.value) || 0;
+            const minutes = parseInt(inputMinutes.value) || 0;
+            const seconds = parseInt(inputSeconds.value) || 0;
+            
+            // 총 시간(초) 계산
+            totalSeconds = hours * 3600 + minutes * 60 + seconds;
+            
+            // 유효성 검사
+            if (totalSeconds <= 0) {
+                alert('시간을 설정해주세요.');
+                return;
+            }
+            
+            // 디스플레이 초기 설정
+            updateTimerDisplay();
+        }
     }
     
     isRunning = true;
@@ -125,6 +240,9 @@ function startTimer() {
     fsPlayPauseIcon.className = 'fa-solid fa-pause';
     
     countdownInterval = setInterval(updateCountdown, 1000);
+    
+    // 타이머 상태 저장
+    saveTimerState();
 }
 
 // 타이머 일시정지 함수
@@ -139,6 +257,9 @@ function pauseTimer() {
     
     // 풀스크린 모드 재생/일시정지 버튼 업데이트
     fsPlayPauseIcon.className = 'fa-solid fa-play';
+    
+    // 타이머 상태 저장
+    saveTimerState();
 }
 
 // 타이머 초기화 함수
@@ -151,13 +272,20 @@ function resetTimer() {
     inputMinutes.value = 0;
     inputSeconds.value = 0;
     
-    initializeTimer();
+    totalSeconds = 0;
+    updateTimerDisplay();
     
     startBtn.disabled = false;
     pauseBtn.disabled = true;
     
     // 풀스크린 모드 재생/일시정지 버튼 업데이트
     fsPlayPauseIcon.className = 'fa-solid fa-play';
+    
+    // 타이머 상태 저장
+    saveTimerState();
+    
+    // 로컬 스토리지에서 타이머 상태 제거 (완전 초기화)
+    localStorage.removeItem('timerState');
 }
 
 // 타이틀 업데이트 함수
@@ -167,6 +295,9 @@ function updateTitle() {
         timerTitle.textContent = newTitle;
         fullscreenTitle.textContent = newTitle;
         document.title = newTitle; // 페이지 타이틀도 변경
+        
+        // 타이틀 변경 시 타이머 상태 저장
+        saveTimerState();
     } else {
         alert('제목을 입력해주세요.');
     }
@@ -327,6 +458,9 @@ function handleDragEnd() {
         if (matrix) {
             const values = matrix[1].split(', ');
             lastTranslateY = parseFloat(values[5]) || 0;
+            
+            // 위치 변경 시 상태 저장
+            saveTimerState();
         }
     }
     
@@ -338,7 +472,11 @@ function handleDragEnd() {
 }
 
 // 이벤트 리스너
-startBtn.addEventListener('click', startTimer);
+startBtn.addEventListener('click', function() {
+    // 타이머가 이미 실행 중이거나 일시 정지 중이면 (totalSeconds > 0) 기존 타이머 재개
+    // 그렇지 않으면 새 타이머 설정
+    startTimer(totalSeconds <= 0);
+});
 pauseBtn.addEventListener('click', pauseTimer);
 resetBtn.addEventListener('click', resetTimer);
 updateTitleBtn.addEventListener('click', updateTitle);
@@ -377,4 +515,10 @@ function handleFullscreenChange() {
 }
 
 // 초기화
-initializeTimer(); 
+initializeTimer();
+
+// 페이지 로드 시 이전 상태 복원
+window.addEventListener('DOMContentLoaded', restoreTimerState);
+
+// 창이 닫히기 전에 상태 저장
+window.addEventListener('beforeunload', saveTimerState); 
